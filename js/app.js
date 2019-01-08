@@ -29,6 +29,7 @@ const UI = {
     const $results = $('#results');
     console.log(videos);
     $.each(videos, (i, video) => {
+      // === create elements for vidoe result ===
       const $resultDiv = $('<div>');
       const $infoDiv = $('<div>');
       const $thumbnailImg = $('<img>');
@@ -36,11 +37,16 @@ const UI = {
       const $channelAndViews = $('<p>');
       const $description = $('<p>');
 
-      $thumbnailImg
-        .attr('src', video.snippet.thumbnails.medium.url)
+      // append image to result div
+      $thumbnailImg.attr('src', video.snippet.thumbnails.medium.url)
 
+      $videoTitle.text(video.snippet.title);
+
+      $infoDiv.append($videoTitle);
 
       $resultDiv.append($thumbnailImg);
+      $resultDiv.append($infoDiv);
+
       $results.append($resultDiv);
     })
   }
