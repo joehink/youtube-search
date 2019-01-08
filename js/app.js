@@ -5,11 +5,25 @@ const DATA = {
       data: {
         key: "AIzaSyBPGEpGKGEMMVUPgwNRCDMI29MzQWVhWdg",
         part: "snippet",
+        type: "video",
         maxResults: 25,
         q: searchTerm
       }
     }).then(data => {
-      UI.renderSearchResults(data.items)
+      const videoIds = data.items.map(video => {
+        return video.id.videoId;
+      })
+      $.ajax({
+        url: "https://www.googleapis.com/youtube/v3/videos",
+        data: {
+          key: "AIzaSyBPGEpGKGEMMVUPgwNRCDMI29MzQWVhWdg",
+          part: "snippet,statistics",
+          id: videoIds.toString()
+        }
+      }).then(videos => {
+        console.log(videos);
+        UI.renderSearchResults(videos.items)
+      })
     })
   }
 }
@@ -18,6 +32,9 @@ const UI = {
   search: (event) => {
     event.preventDefault();
     const $searchBar = $('#search-bar');
+
+    // Clear search $results
+    $("#results").empty();
 
     // Save value of search bar to variable
     const searchTerm = $searchBar.val();
@@ -37,13 +54,18 @@ const UI = {
       const $channelAndViews = $('<p>');
       const $description = $('<p>');
 
-      // append image to result div
+
       $thumbnailImg.attr('src', video.snippet.thumbnails.medium.url)
 
       $videoTitle.text(video.snippet.title);
 
-      $infoDiv.append($videoTitle);
+      $channelAndViews
+        .html(`${video.snippet.channelTitle} &#8226; ${video.statistics.viewCount} views`)
 
+      $infoDiv.append($videoTitle);
+      $infoDiv.append($channelAndViews);
+
+      // append image to result div
       $resultDiv.append($thumbnailImg);
       $resultDiv.append($infoDiv);
 
