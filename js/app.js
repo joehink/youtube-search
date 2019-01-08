@@ -1,19 +1,41 @@
-const data = {
+const DATA = {
   fetchVideos: (searchTerm) => {
-    console.log(searchTerm);
+    $.ajax({
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      data: {
+        key: "AIzaSyBPGEpGKGEMMVUPgwNRCDMI29MzQWVhWdg",
+        part: "snippet",
+        maxResults: 25,
+        q: searchTerm
+      }
+    }).then(data => {
+      UI.renderSearchResults(data.items)
+    })
   }
 }
 
-const video = {
+const UI = {
   search: (event) => {
     event.preventDefault();
     const $searchBar = $('#search-bar');
-    const searchTerm = $searchBar.val()
 
-    data.fetchVideos(searchTerm)
+    // Save value of search bar to variable
+    const searchTerm = $searchBar.val();
+
+    // Call funtion to fetch
+    DATA.fetchVideos(searchTerm);
+  },
+  renderSearchResults: (videos) => {
+    $.each(videos, video => {
+      const $resultDiv = $('<div>');
+      const $thumbnailImg = $('<div>');
+      const $infoDiv = $('<div>');
+      
+    })
   }
 };
 
 $(() => {
-  $('form.search').on('submit', video.search);
+  // Call search function when search form is submitted
+  $('form.search').on('submit', UI.search);
 })
