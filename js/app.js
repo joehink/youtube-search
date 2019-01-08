@@ -26,11 +26,22 @@ const UI = {
     DATA.fetchVideos(searchTerm);
   },
   renderSearchResults: (videos) => {
-    $.each(videos, video => {
+    const $results = $('#results');
+    console.log(videos);
+    $.each(videos, (i, video) => {
       const $resultDiv = $('<div>');
-      const $thumbnailImg = $('<div>');
       const $infoDiv = $('<div>');
-      
+      const $thumbnailImg = $('<img>');
+      const $videoTitle = $('<h3>');
+      const $channelAndViews = $('<p>');
+      const $description = $('<p>');
+
+      $thumbnailImg
+        .attr('src', video.snippet.thumbnails.medium.url)
+
+
+      $resultDiv.append($thumbnailImg);
+      $results.append($resultDiv);
     })
   }
 };
