@@ -60,7 +60,7 @@ const UI = {
       $videoTitle.text(video.snippet.title);
 
       $channelAndViews
-        .html(`${video.snippet.channelTitle} &#8226; ${video.statistics.viewCount} views`)
+        .html(`${video.snippet.channelTitle} &#8226; ${UI.formatViews(video.statistics.viewCount)} views &#8226; ${UI.formatPublishedDate(video.snippet.publishedAt)}`);
 
       $infoDiv.append($videoTitle);
       $infoDiv.append($channelAndViews);
@@ -71,6 +71,67 @@ const UI = {
 
       $results.append($resultDiv);
     })
+  },
+  formatViews: (views) => {
+    if (views > 999999999) {
+        return parseFloat((views / 1000000000).toFixed(1)) + "B"
+    }
+    if (views > 999999) {
+        return parseFloat((views / 1000000).toFixed(1)) + "M"
+    }
+    if (views > 999) {
+        return parseFloat((views / 1000).toFixed(1)) + "K"
+    }
+
+    return views;
+  },
+  formatPublishedDate: (datePublished) => {
+    const seconds = Math.floor(((new Date() - new Date(datePublished)) / 1000));
+    const secondsInYear = 31536000;
+    const secondsInMonth = 2629746;
+    const secondsInWeek = 604800;
+    const secondsInDay = 86400;
+    const secondsInHour = 3600;
+    const secondsInMinute = 60;
+
+    let timeElapsed = Math.floor(seconds/secondsInYear);
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} year ago` : `${timeElapsed} years ago`;
+    }
+
+    timeElapsed = Math.floor(seconds/secondsInMonth)
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} month ago` : `${timeElapsed} months ago`
+    }
+
+    timeElapsed = Math.floor(seconds/secondsInWeek);
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} week ago` : `${timeElapsed} weeks ago`
+    }
+
+    timeElapsed = Math.floor(seconds/secondsInDay);
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} day ago` : `${timeElapsed} days ago`
+    }
+
+    timeElapsed = Math.floor(seconds/secondsInHour);
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} hour ago` : `${timeElapsed} hours ago`
+    }
+
+    timeElapsed = Math.floor(seconds/secondsInMinute);
+
+    if (timeElapsed >= 1) {
+      return timeElapsed === 1 ? `${timeElapsed} minute ago` : `${timeElapsed} minutes ago`
+    }
+
+    return "Just now"
+
   }
 };
 
