@@ -1,5 +1,5 @@
 const DATA = {
-  fetchVideos: (searchTerm) => {
+  fetchVideos: (searchTerm, pageToken) => {
     $.ajax({
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: {
@@ -7,9 +7,11 @@ const DATA = {
         part: "snippet",
         type: "video",
         maxResults: 25,
-        q: searchTerm
+        q: searchTerm,
+        pageToken: pageToken
       }
     }).then(data => {
+      const nextPageToken = data.nextPageToken
       const videoIds = data.items.map(video => {
         return video.id.videoId;
       })
@@ -21,8 +23,7 @@ const DATA = {
           id: videoIds.toString()
         }
       }).then(videos => {
-        console.log(videos);
-        UI.renderSearchResults(videos.items)
+        UI.renderSearchResults(videos.items, searchTerm, nextPageToken)
       })
     })
   }
@@ -42,9 +43,8 @@ const UI = {
     // Call funtion to fetch
     DATA.fetchVideos(searchTerm);
   },
-  renderSearchResults: (videos) => {
+  renderSearchResults: (videos, searchTerm, nextPageToken) => {
     const $results = $('#results');
-    console.log(videos);
     $.each(videos, (i, video) => {
       // === create elements for vidoe result ===
       const $resultDiv = $('<div>');
@@ -82,6 +82,9 @@ const UI = {
 
       $results.append($resultDiv);
     })
+    $results.append($('<span>next page</span>').on('click',() => {
+      DATA.fetchVideos(searchTerm, nextPageToken);
+    }))
   },
   formatViews: (views) => {
     if (views > 999999999) {
