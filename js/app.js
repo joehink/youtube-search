@@ -2,9 +2,11 @@ let fromBottom = 10000;
 let pageToken = '';
 let searchTerm = '';
 let requestingVideos = false;
+let numRequestsMade = 0;
 const DATA = {
   fetchVideos: () => {
     requestingVideos = true;
+    numRequestsMade++;
     $.ajax({
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: {
@@ -39,6 +41,7 @@ const UI = {
   search: (event) => {
     event.preventDefault();
     pageToken = '';
+    numRequestsMade = 0;
     const $searchBar = $('#search-bar');
 
     // Clear search $results
@@ -65,10 +68,12 @@ const UI = {
       $thumbnailImg
         .addClass('thumbnail')
         .attr('src', video.snippet.thumbnails.medium.url)
+        .on('click', () => UI.renderModal(video.id));
 
       $videoTitle
         .addClass('title')
-        .text(video.snippet.title);
+        .text(video.snippet.title)
+        .on('click', () => UI.renderModal(video.id));
 
       $channelViewsPublished
         .addClass('channel-views-published')
@@ -89,6 +94,12 @@ const UI = {
 
       $results.append($resultDiv);
     })
+  },
+  renderModal: (videoId) => {
+    $('#video-player-container')
+      .html(`<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`);
+    $('#modal')
+      .show();
   },
   formatViews: (views) => {
     if (views > 999999999) {
@@ -155,14 +166,20 @@ const UI = {
 $(() => {
   // Call search function when search form is submitted
   $('form.search').on('submit', UI.search);
-  $(window).scroll(event => {
-    const position = ($(window).scrollTop());
-    const threshold = ($(document).height() - ($(window).height() * 2.5));
-    // threshold formula from: https://stackoverflow.com/questions/13057910/load-more-content-when-user-scrolls-near-bottom-of-page
+  $('#results').scroll(event => {
+    const position = ($('#results').scrollTop());
+    console.log("position",position);
+    const threshold = 6000 * numRequestsMade;
+    console.log("threshold", threshold);
     let nearBottom = position > threshold;
 
     if (nearBottom && !requestingVideos) {
       DATA.fetchVideos()
     }
+  })
+  $('#modal').on('click', (event) => {
+    $(event.target)
+      .empty()
+      .hide();
   })
 })

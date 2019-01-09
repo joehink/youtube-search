@@ -1,3 +1,13 @@
+html {
+    height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 /* nav bar styling */
 #main-nav {
   display: flex;
@@ -39,6 +49,10 @@ input[type=submit] {
 
 
 /* Video list item styling */
+#results {
+  flex: 1;
+  overflow: scroll;
+}
 .result {
   padding: 15px;
   margin: auto;
@@ -60,4 +74,33 @@ input[type=submit] {
 
 .description {
   display: none;
+}
+
+
+/* modal styling */
+#modal {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0,0,0,.4);
+  padding: 5px;
+}
+
+#video-player-container {
+  background-color: white;
+  padding: 5px;
+  border-radius: 5px;
+  height: 200px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.75);
+  position: relative;
+  top: 50%;
+  transform: translateY(-75%);
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
 }
