@@ -98,6 +98,7 @@ const UI = {
   renderModal: (videoId) => {
     $('#video-player-container')
       .html(`<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`);
+
     $('#modal')
       .show();
   },
@@ -168,9 +169,7 @@ $(() => {
   $('form.search').on('submit', UI.search);
   $('#results').scroll(event => {
     const position = ($('#results').scrollTop());
-    console.log("position",position);
-    const threshold = 6000 * numRequestsMade;
-    console.log("threshold", threshold);
+    const threshold = $('.result').eq(0).height() * numRequestsMade * 22;
     let nearBottom = position > threshold;
 
     if (nearBottom && !requestingVideos) {
@@ -178,8 +177,7 @@ $(() => {
     }
   })
   $('#modal').on('click', (event) => {
-    $(event.target)
-      .empty()
-      .hide();
+    $(event.target).hide();
+    $('#video-player-container').empty();
   })
 })
