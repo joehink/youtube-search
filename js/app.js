@@ -51,20 +51,31 @@ const UI = {
       const $infoDiv = $('<div>');
       const $thumbnailImg = $('<img>');
       const $videoTitle = $('<h3>');
-      const $channelAndViews = $('<p>');
+      const $channelViewsPublished = $('<p>');
       const $description = $('<p>');
 
 
-      $thumbnailImg.attr('src', video.snippet.thumbnails.medium.url)
+      $thumbnailImg
+        .addClass('thumbnail')
+        .attr('src', video.snippet.thumbnails.medium.url)
 
-      $videoTitle.text(video.snippet.title);
+      $videoTitle
+        .addClass('title')
+        .text(video.snippet.title);
 
-      $channelAndViews
+      $channelViewsPublished
+        .addClass('channel-views-published')
         .html(`${video.snippet.channelTitle} &#8226; ${UI.formatViews(video.statistics.viewCount)} views &#8226; ${UI.formatPublishedDate(video.snippet.publishedAt)}`);
 
-      $infoDiv.append($videoTitle);
-      $infoDiv.append($channelAndViews);
+      $description
+        .addClass('description')
+        .text(video.snippet.description);
 
+      $infoDiv.append($videoTitle);
+      $infoDiv.append($channelViewsPublished);
+      $infoDiv.append($description);
+
+      $resultDiv.addClass('result')
       // append image to result div
       $resultDiv.append($thumbnailImg);
       $resultDiv.append($infoDiv);

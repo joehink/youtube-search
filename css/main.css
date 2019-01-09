@@ -1,3 +1,4 @@
+/* nav bar styling */
 #main-nav {
   display: flex;
   flex-direction: column;
@@ -12,4 +13,28 @@
 input[type=text] {
   border-radius: 3px;
   border: 1px solid #DDD;
+}
+
+
+/* Video list item styling */
+.result {
+  padding: 15px;
+}
+
+.thumbnail {
+  width: 100%;
+  cursor: pointer;
+}
+
+.title {
+  margin: 5px 0 0 0;
+  cursor: pointer;
+}
+
+.channel-views-published {
+  margin: 10px 0 0 0;
+}
+
+.description {
+  display: none;
 }
