@@ -1,5 +1,10 @@
+let fromBottom = 10000;
+let pageToken = '';
+let searchTerm = '';
+let requestingVideos = false;
 const DATA = {
-  fetchVideos: (searchTerm, pageToken) => {
+  fetchVideos: () => {
+    requestingVideos = true;
     $.ajax({
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: {
@@ -11,7 +16,7 @@ const DATA = {
         pageToken: pageToken
       }
     }).then(data => {
-      const nextPageToken = data.nextPageToken
+      pageToken = data.nextPageToken
       const videoIds = data.items.map(video => {
         return video.id.videoId;
       })
@@ -23,7 +28,8 @@ const DATA = {
           id: videoIds.toString()
         }
       }).then(videos => {
-        UI.renderSearchResults(videos.items, searchTerm, nextPageToken)
+        UI.renderSearchResults(videos.items)
+        requestingVideos = false;
       })
     })
   }
@@ -32,18 +38,19 @@ const DATA = {
 const UI = {
   search: (event) => {
     event.preventDefault();
+    pageToken = '';
     const $searchBar = $('#search-bar');
 
     // Clear search $results
     $("#results").empty();
 
     // Save value of search bar to variable
-    const searchTerm = $searchBar.val();
+    searchTerm = $searchBar.val();
 
     // Call funtion to fetch
-    DATA.fetchVideos(searchTerm);
+    DATA.fetchVideos();
   },
-  renderSearchResults: (videos, searchTerm, nextPageToken) => {
+  renderSearchResults: (videos) => {
     const $results = $('#results');
     $.each(videos, (i, video) => {
       // === create elements for vidoe result ===
@@ -82,9 +89,6 @@ const UI = {
 
       $results.append($resultDiv);
     })
-    $results.append($('<span>next page</span>').on('click',() => {
-      DATA.fetchVideos(searchTerm, nextPageToken);
-    }))
   },
   formatViews: (views) => {
     if (views > 999999999) {
@@ -145,11 +149,20 @@ const UI = {
     }
 
     return "Just now"
-
   }
 };
 
 $(() => {
   // Call search function when search form is submitted
   $('form.search').on('submit', UI.search);
+  $(window).scroll(event => {
+    const position = ($(window).scrollTop());
+    const threshold = ($(document).height() - ($(window).height() * 2.5));
+    // threshold formula from: https://stackoverflow.com/questions/13057910/load-more-content-when-user-scrolls-near-bottom-of-page
+    let nearBottom = position > threshold;
+
+    if (nearBottom && !requestingVideos) {
+      DATA.fetchVideos()
+    }
+  })
 })
