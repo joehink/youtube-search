@@ -180,7 +180,7 @@ $(() => {
   $('#results').hide();
   $('#results').scroll(event => {
     const position = ($('#results').scrollTop());
-    const threshold = $('.result:first-of-type').height() * numRequestsMade * 22;
+    const threshold = $('.result:first-of-type').height() * numRequestsMade * 21;
     let nearBottom = position > threshold;
 
     if (nearBottom && !requestingVideos) {
