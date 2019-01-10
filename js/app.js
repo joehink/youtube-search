@@ -43,6 +43,7 @@ const UI = {
     pageToken = '';
     numRequestsMade = 0;
     const $searchBar = $('#search-bar');
+    $('input[type=text]').blur();
 
     // Clear search $results
     $("#results").empty();
@@ -100,7 +101,7 @@ const UI = {
       .html(`<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`);
 
     $('#modal')
-      .show();
+      .fadeIn();
   },
   formatViews: (views) => {
     if (views > 999999999) {
@@ -166,6 +167,7 @@ const UI = {
 
 $(() => {
   // Call search function when search form is submitted
+  $('.submit').on('click', UI.search);
   $('form.search').on('submit', UI.search);
   $('#results').scroll(event => {
     const position = ($('#results').scrollTop());
@@ -177,7 +179,7 @@ $(() => {
     }
   })
   $('#modal').on('click', (event) => {
-    $(event.target).hide();
+    $(event.target).fadeOut();
     $('#video-player-container').empty();
   })
 })
