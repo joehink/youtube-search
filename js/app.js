@@ -46,7 +46,7 @@ const UI = {
     $('input[type=text]').blur();
 
     // Clear search $results
-    $("#results").empty();
+    $("#results").empty().show();
 
     // Save value of search bar to variable
     searchTerm = $searchBar.val();
@@ -65,6 +65,7 @@ const UI = {
       const $channelViewsPublished = $('<p>');
       const $description = $('<p>');
 
+      console.log(video.snippet.thumbnails.medium);
 
       $thumbnailImg
         .addClass('thumbnail')
@@ -82,11 +83,18 @@ const UI = {
 
       $description
         .addClass('description')
-        .text(video.snippet.description);
+      if (video.snippet.description.length > 150) {
+        $description
+          .text(video.snippet.description.substring(0, 150) + "...");
+      } else {
+        $description
+          .text(video.snippet.description);
+      }
 
       $infoDiv.append($videoTitle);
       $infoDiv.append($channelViewsPublished);
       $infoDiv.append($description);
+      $infoDiv.addClass('info');
 
       $resultDiv.addClass('result')
       // append image to result div
@@ -169,9 +177,10 @@ $(() => {
   // Call search function when search form is submitted
   $('.submit').on('click', UI.search);
   $('form.search').on('submit', UI.search);
+  $('#results').hide();
   $('#results').scroll(event => {
     const position = ($('#results').scrollTop());
-    const threshold = $('.result').eq(0).height() * numRequestsMade * 22;
+    const threshold = $('.result:first-of-type').height() * numRequestsMade * 22;
     let nearBottom = position > threshold;
 
     if (nearBottom && !requestingVideos) {
