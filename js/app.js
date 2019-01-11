@@ -45,6 +45,7 @@ const UI = {
     const $searchBar = $('#search-bar');
     $('input[type=text]').blur();
 
+    $('#splash').hide();
     // Clear search $results
     $("#results").empty().show();
 
@@ -85,7 +86,7 @@ const UI = {
         .addClass('description')
       if (video.snippet.description.length > 150) {
         $description
-          .text(video.snippet.description.substring(0, 150) + "...");
+          .text(video.snippet.description.substring(0, 150).trim() + "...");
       } else {
         $description
           .text(video.snippet.description);
@@ -174,13 +175,14 @@ const UI = {
 };
 
 $(() => {
+  $('#results').hide();
+
   // Call search function when search form is submitted
   $('.submit').on('click', UI.search);
   $('form.search').on('submit', UI.search);
-  $('#results').hide();
   $('#results').scroll(event => {
     const position = ($('#results').scrollTop());
-    const threshold = $('.result:first-of-type').height() * numRequestsMade * 21;
+    const threshold = $('.result:first-of-type').height() * numRequestsMade * 22;
     let nearBottom = position > threshold;
 
     if (nearBottom && !requestingVideos) {
@@ -190,5 +192,14 @@ $(() => {
   $('#modal').on('click', (event) => {
     $(event.target).fadeOut();
     $('#video-player-container').empty();
+  })
+  $('.glass').on('click', () => {
+    $("input[type=text]").focus();
+  })
+  $('.brand').on('click', () => {
+    $('#results')
+      .empty()
+      .hide();
+    $('#splash').show();
   })
 })

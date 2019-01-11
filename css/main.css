@@ -26,12 +26,14 @@ body {
   padding: 25px 15px 15px;
   max-width: 1200px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .brand {
   width: 125px;
   height: 28px;
   margin-bottom: 25px;
+  cursor: pointer;
 }
 
 form.search {
@@ -124,6 +126,56 @@ iframe {
   height: 100%;
 }
 
+
+
+#splash {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    opacity: 0.5;
+    text-align: center;
+    animation-name: fade-in;
+    animation-duration: 2s;
+}
+
+.glass {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 400px;
+  height: 400px;
+  width: 100%;
+}
+
+.spinner {
+  max-width: 220px;
+  position: absolute;
+  top: 30px;
+  left: 85px;
+  transition: transform 1s;
+  display: none;
+  animation-name: spin;
+  animation-duration: 2s;
+  animation-delay: .25s;
+}
+
+.spinner:hover {
+  transform: rotate(360deg);
+}
+
+.magnify {
+  max-width: 400px;
+  width: 100%;
+  position: absolute;
+}
+
+
 @media(min-width: 768px) {
   #main-nav {
     flex-direction: row;
@@ -176,15 +228,32 @@ iframe {
     padding-left: 10px;
   }
 
-  /* #video-player-container {
-    max-width: 560px;
-    height: 315px;
-  } */
+  .spinner {
+    display: block;
+  }
 }
 
 @media(min-width: 1200px) {
   #video-player-container {
     max-width: 825px;
     height: 475px;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: .5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(720deg);
   }
 }
