@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
-
+* {
+  box-sizing: border-box;
+}
 html {
     height: 100%;
 }
@@ -70,6 +72,7 @@ input[type=text]:-webkit-autofill {
   flex: 1;
   overflow-y: scroll;
   width: 100%;
+  display: none;
 }
 .result {
   padding: 15px;
@@ -166,7 +169,7 @@ iframe {
 }
 
 .spinner:hover {
-  transform: rotate(360deg);
+  transform: rotate(-360deg);
 }
 
 .magnify {

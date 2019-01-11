@@ -3,9 +3,13 @@ let pageToken = '';
 let searchTerm = '';
 let requestingVideos = false;
 let numRequestsMade = 0;
+
 const DATA = {
   fetchVideos: () => {
+    // change requestingVideos to true just before request begins
     requestingVideos = true;
+
+
     numRequestsMade++;
     $.ajax({
       url: 'https://www.googleapis.com/youtube/v3/search',
@@ -40,19 +44,30 @@ const DATA = {
 const UI = {
   search: (event) => {
     event.preventDefault();
-    pageToken = '';
-    numRequestsMade = 0;
     const $searchBar = $('#search-bar');
+
+    // empty pageToken in case there were other searches during same session
+    pageToken = '';
+
+    // reset numRequestsMade
+    // this variable refers to requests made for one search searchTerm
+    // whether it be for the initialrequest or infinite scroll/pagination requests
+    numRequestsMade = 0;
+
+    // unfocus text input
     $('input[type=text]').blur();
 
+    // hide the splash screen to make room for results
     $('#splash').hide();
-    // Clear search $results
+
+    // Clear search results
+    // in case new search is made while results from another search are still on screen
     $("#results").empty().show();
 
-    // Save value of search bar to variable
+    // Save value of text input to variable
     searchTerm = $searchBar.val();
 
-    // Call funtion to fetch
+    // Call funtion to fetch videos
     DATA.fetchVideos();
   },
   renderSearchResults: (videos) => {
@@ -65,8 +80,6 @@ const UI = {
       const $videoTitle = $('<h3>');
       const $channelViewsPublished = $('<p>');
       const $description = $('<p>');
-
-      console.log(video.snippet.thumbnails.medium);
 
       $thumbnailImg
         .addClass('thumbnail')
@@ -105,12 +118,38 @@ const UI = {
       $results.append($resultDiv);
     })
   },
+  handleOnScroll: () => {
+    // Position represents how far the user has scrolled from the top of #results
+    const position = ($('#results').scrollTop());
+
+    // Grap the height of the first search result
+    const heightOfResult = $('.result:first-of-type').height()
+
+    // find total height of all search results
+    // then subtract that total by the height of 4 results
+    // this total becomes the threshold, that when passed will request more videos
+    const threshold =  ((25 * numRequestsMade) * heightOfResult) - (heightOfResult * 4);
+
+    // determines whether the scroll position has passed the threshold
+    let nearBottom = position > threshold;
+
+    // if the scroll position has passed the threshold
+    // and if a request for videos is not already taking place
+    if (nearBottom && !requestingVideos) {
+      // Make a request for more videos
+      DATA.fetchVideos()
+    }
+  },
   renderModal: (videoId) => {
     $('#video-player-container')
       .html(`<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`);
 
     $('#modal')
       .fadeIn();
+  },
+  hideModal: (event) => {
+    $(event.target).fadeOut();
+    $('#video-player-container').empty();
   },
   formatViews: (views) => {
     if (views > 999999999) {
@@ -175,31 +214,27 @@ const UI = {
 };
 
 $(() => {
-  $('#results').hide();
+  /* ====== On Load ====== */
 
-  // Call search function when search form is submitted
+  // Call search function when search/submit button is clicked
   $('.submit').on('click', UI.search);
-  $('form.search').on('submit', UI.search);
-  $('#results').scroll(event => {
-    const position = ($('#results').scrollTop());
-    const threshold = $('.result:first-of-type').height() * numRequestsMade * 22;
-    let nearBottom = position > threshold;
 
-    if (nearBottom && !requestingVideos) {
-      DATA.fetchVideos()
-    }
-  })
-  $('#modal').on('click', (event) => {
-    $(event.target).fadeOut();
-    $('#video-player-container').empty();
-  })
-  $('.glass').on('click', () => {
-    $("input[type=text]").focus();
-  })
+  // Also calls search function, but handles the case when the user hits the enter key
+  $('form.search').on('submit', UI.search);
+
+  // While #results is being scrolled
+  // Check to see if the user is near the bottom of the page
+  $('#results').scroll(UI.handleOnScroll)
+
+  // when modal is clicked (user clicks off video), hide the modal
+  $('#modal').on('click', UI.hideModal)
+
+  // when splash screen magnifying glass is clicked, focus the text input
+  $('.glass').on('click', () => $("input[type=text]").focus())
+
+  // when logo in nav is clicked, hide #results and show splash screen
   $('.brand').on('click', () => {
-    $('#results')
-      .empty()
-      .hide();
+    $('#results').empty().hide();
     $('#splash').show();
   })
 })
