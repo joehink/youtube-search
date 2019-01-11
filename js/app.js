@@ -1,8 +1,18 @@
-let fromBottom = 10000;
+// stores next page token after every search request
 let pageToken = '';
+
+// saves search term after every search
 let searchTerm = '';
+
+// requestingVideos helps prevent
+// simulatneous requests for more videos during scroll event
 let requestingVideos = false;
+
+// this variable tracks the number of requests made for one search searchTerm
+// whether it be for the initial request or infinite scroll/pagination requests
 let numRequestsMade = 0;
+
+
 
 const DATA = {
   fetchVideos: () => {
@@ -70,8 +80,6 @@ const UI = {
     pageToken = '';
 
     // reset numRequestsMade
-    // this variable refers to requests made for one search searchTerm
-    // whether it be for the initialrequest or infinite scroll/pagination requests
     numRequestsMade = 0;
 
     // unfocus text input
@@ -276,7 +284,6 @@ const UI = {
 
 $(() => {
   /* ====== On Load ====== */
-
   // Call search function when search/submit button is clicked
   $('.submit').on('click', UI.search);
 
@@ -291,7 +298,9 @@ $(() => {
   $('#modal').on('click', UI.hideModal)
 
   // when splash screen magnifying glass is clicked, focus the text input
-  $('.glass').on('click', () => $("input[type=text]").focus())
+  $('.glass').on('click', () => {
+    $("#search-bar").focus();
+  });
 
   // when logo in nav is clicked, hide #results and show splash screen
   $('.brand').on('click', () => {
