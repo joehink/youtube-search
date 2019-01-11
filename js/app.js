@@ -9,8 +9,16 @@ const DATA = {
     // change requestingVideos to true just before request begins
     requestingVideos = true;
 
-
+    // increment by 1 to keep track of requests made for current search term
     numRequestsMade++;
+
+    /*=====================================================================
+      Make search request for 25 videos
+      if pageToken is blank (it will be on first request for new searchTerm)
+      API will still return first page of results
+      pageToken will be given value after first request
+      and subsequent requests will return next page of results
+      =====================================================================*/
     $.ajax({
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: {
@@ -22,10 +30,19 @@ const DATA = {
         pageToken: pageToken
       }
     }).then(data => {
+      // save token for next page of search results
       pageToken = data.nextPageToken
+
+      // create array of IDs of videos from search request
       const videoIds = data.items.map(video => {
         return video.id.videoId;
       })
+
+      /*=========================================================
+        search request does not return number of views per video
+        so another request must be made for each video
+        provide array of IDs to return all videos from search in one request
+        ===================================================================*/
       $.ajax({
         url: "https://www.googleapis.com/youtube/v3/videos",
         data: {
@@ -34,7 +51,10 @@ const DATA = {
           id: videoIds.toString()
         }
       }).then(videos => {
+        // call function to render videos to the screen
         UI.renderSearchResults(videos.items)
+
+        // set requestingVideos to false now that requests have ended
         requestingVideos = false;
       })
     })
@@ -73,49 +93,61 @@ const UI = {
   renderSearchResults: (videos) => {
     const $results = $('#results');
     $.each(videos, (i, video) => {
-      // === create elements for vidoe result ===
+      // === create elements for video result ===
       const $resultDiv = $('<div>');
       const $infoDiv = $('<div>');
       const $thumbnailImg = $('<img>');
       const $videoTitle = $('<h3>');
       const $channelViewsPublished = $('<p>');
       const $description = $('<p>');
+      // ========================================
 
+      // create img element for thumbnail
+      // when clicked, render modal with playable video
       $thumbnailImg
         .addClass('thumbnail')
         .attr('src', video.snippet.thumbnails.medium.url)
         .on('click', () => UI.renderModal(video.id));
 
+      // create h3 element for title
+      // when clicked, render modal with playable video
       $videoTitle
         .addClass('title')
         .text(video.snippet.title)
         .on('click', () => UI.renderModal(video.id));
 
+      // create p element for channel name, views, and time since published
       $channelViewsPublished
         .addClass('channel-views-published')
         .html(`${video.snippet.channelTitle} &#8226; ${UI.formatViews(video.statistics.viewCount)} views &#8226; ${UI.formatPublishedDate(video.snippet.publishedAt)}`);
 
+      // create p element for description
       $description
         .addClass('description')
+
+      // if the description is longer than 150 characters
       if (video.snippet.description.length > 150) {
+        // return the first 150 characters + "..."
         $description
           .text(video.snippet.description.substring(0, 150).trim() + "...");
       } else {
+        // return full description
         $description
           .text(video.snippet.description);
       }
 
+      //=== append elements to create full search result ===
       $infoDiv.append($videoTitle);
       $infoDiv.append($channelViewsPublished);
       $infoDiv.append($description);
       $infoDiv.addClass('info');
 
       $resultDiv.addClass('result')
-      // append image to result div
       $resultDiv.append($thumbnailImg);
       $resultDiv.append($infoDiv);
 
       $results.append($resultDiv);
+      //=====================================================
     })
   },
   handleOnScroll: () => {
@@ -141,31 +173,60 @@ const UI = {
     }
   },
   renderModal: (videoId) => {
+    // append iframe with video to modal
     $('#video-player-container')
       .html(`<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`);
 
+    // show modal
     $('#modal')
       .fadeIn();
   },
   hideModal: (event) => {
+    // fade out modal
     $(event.target).fadeOut();
+
+    // remove iframe of video
     $('#video-player-container').empty();
   },
   formatViews: (views) => {
+    // if views > 1 billion
     if (views > 999999999) {
+        // divide views by 1 billion and add "B", ex: 1.2B views
         return parseFloat((views / 1000000000).toFixed(1)) + "B"
     }
+
+    // if views > 1 million
     if (views > 999999) {
+        // divide views by 1 million and add "M", ex: 6.7M views
         return parseFloat((views / 1000000).toFixed(1)) + "M"
     }
+
+    // if views > 1 thousand
     if (views > 999) {
+        // divide views by 1 thousand and add "K", ex: 102.5K views
         return parseFloat((views / 1000).toFixed(1)) + "K"
     }
 
+    // if views is in the hundreds
+    // just return views, ex: 978 views
     return views;
   },
+  timeSincePublished: (secondsSincePublished, intervalSeconds, intervalName) => {
+    // divide number of seconds since published
+    // by intervalSeconds (seconds in year, month, day, hour, or minute)
+    // timeElapsed equals rounded number of years, months, days, hours, or minutes
+    // formula from https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
+    let timeElapsed = Math.floor(secondsSincePublished/intervalSeconds);
+
+    if (timeElapsed === 1) {
+      // ex: 1 month ago
+      return `${timeElapsed} ${intervalName} ago`;
+    } else {
+      // ex: 2 years ago
+      return `${timeElapsed} ${intervalName + "s"} ago`;
+    }
+  },
   formatPublishedDate: (datePublished) => {
-    const seconds = Math.floor(((new Date() - new Date(datePublished)) / 1000));
     const secondsInYear = 31536000;
     const secondsInMonth = 2629746;
     const secondsInWeek = 604800;
@@ -173,42 +234,42 @@ const UI = {
     const secondsInHour = 3600;
     const secondsInMinute = 60;
 
-    let timeElapsed = Math.floor(seconds/secondsInYear);
+    // subtract (datePublished / 1000) from current date
+    // to get number of seconds since video was published
+    // formula from: https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
+    const seconds = Math.floor(((new Date() - new Date(datePublished)) / 1000));
 
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} year ago` : `${timeElapsed} years ago`;
+    if (seconds >= secondsInYear) {
+      // calculate years since published
+      return UI.timeSincePublished(seconds, secondsInYear, "year");
     }
 
-    timeElapsed = Math.floor(seconds/secondsInMonth)
-
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} month ago` : `${timeElapsed} months ago`
+    if (seconds >= secondsInMonth) {
+      // calculate months since published
+      return UI.timeSincePublished(seconds, secondsInMonth, "month");
     }
 
-    timeElapsed = Math.floor(seconds/secondsInWeek);
-
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} week ago` : `${timeElapsed} weeks ago`
+    if (seconds >= secondsInWeek) {
+      // calculate weeks since published
+      return UI.timeSincePublished(seconds, secondsInWeek, "week");
     }
 
-    timeElapsed = Math.floor(seconds/secondsInDay);
-
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} day ago` : `${timeElapsed} days ago`
+    if (seconds >= secondsInDay) {
+      // calculate days since published
+      return UI.timeSincePublished(seconds, secondsInDay, "day");
     }
 
-    timeElapsed = Math.floor(seconds/secondsInHour);
-
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} hour ago` : `${timeElapsed} hours ago`
+    if (seconds >= secondsInHour) {
+      // calculate hours since published
+      return UI.timeSincePublished(seconds, secondsInHour, "hour");
     }
 
-    timeElapsed = Math.floor(seconds/secondsInMinute);
-
-    if (timeElapsed >= 1) {
-      return timeElapsed === 1 ? `${timeElapsed} minute ago` : `${timeElapsed} minutes ago`
+    if (seconds >= secondsInMinute) {
+      // calculate minutes since published
+      return UI.timeSincePublished(seconds, secondsInMinute, "minute");
     }
 
+    // if seconds > one minute
     return "Just now"
   }
 };
