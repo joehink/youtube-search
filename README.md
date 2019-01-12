@@ -9,18 +9,18 @@ Link to live site: https://joehink.github.io/youtube-search/
 ### Instructions
 
   1. Putting your cursor in the search bar:
-    * Either click the search bar directly to start typing
-    * Or click the big magnifying glass in the center of the page
+    - Either click the search bar directly to start typing
+    - Or click the big magnifying glass in the center of the page
 
 
   2. Submitting your search query:
-    * After typing in your search term click the search icon to the right of the search bar
-    * Or hit enter/return
+    - After typing in your search term click the search icon to the right of the search bar
+    - Or hit enter/return
 
 
   3. Watching a video:
-    * Either click the video thumbnail or the video title
-    * Then click play when the modal pops up
+    - Either click the video thumbnail or the video title
+    - Then click play when the modal pops up
 
 ## Technologies Used
 
