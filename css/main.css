@@ -243,6 +243,12 @@ iframe {
   }
 }
 
+@media(max-height: 600px) {
+  .glass {
+    display: none;
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
