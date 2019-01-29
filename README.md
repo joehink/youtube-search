@@ -19,7 +19,3 @@ Link to live site: https://joehink.github.io/youtube-search/
   1. Used [jQuery](https://jquery.com/) to manipulate the DOM and make AJAX requests.
   2. Used the [YouTube Data API](https://developers.google.com/youtube/v3/) to retrieve videos and video info.
   3. Used [Font Awesome](https://fontawesome.com/) for search icon next to search bar.
-
-## Unsolved Issues
-
-  1. My YouTube API key is exposed on GitHub and I don't know how to keep it private.
